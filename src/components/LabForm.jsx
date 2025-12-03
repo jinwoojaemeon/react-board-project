@@ -28,7 +28,23 @@ import {
   PreviewImage,
   RemoveImageButton
 } from './Layout.styled'
-import { ShakerAnimationContainer, ShakerAnimationIcon } from './LabForm.styled'
+import { 
+  ShakerAnimationContainer, 
+  ShakerAnimationIcon,
+  ModalFormSection,
+  ShakerVisualizationContainer,
+  ShakerSVGWrapper,
+  ShakerSVG,
+  ShakerBody,
+  ShakerTop,
+  ShakerInfo,
+  ShakerInfoTitle,
+  IngredientRatioList,
+  IngredientRatioItem,
+  ColorIndicator,
+  RatioText,
+  PercentageText
+} from './LabForm.styled'
 import shakerIcon from '../resources/icons/shaker.png'
 
 const LabForm = ({ isOpen, onClose }) => {
@@ -62,6 +78,141 @@ const LabForm = ({ isOpen, onClose }) => {
     '그레나딘 시럽', '심플 시럽', '설탕', '소다수', '토닉 워터', '진저 에일',
     '민트', '라임', '레몬', '오렌지', '올리브', '체리', '소금'
   ]
+
+  // 재료별 색상 매핑 함수
+  const getIngredientColor = (ingredientName) => {
+    const name = ingredientName.toLowerCase()
+    
+    // 럼 계열
+    if (name.includes('럼')) {
+      if (name.includes('다크')) return '#8B4513' // 갈색
+      return '#D4A574' // 황금색
+    }
+    
+    // 진
+    if (name.includes('진')) return '#F5F5DC' // 베이지/투명
+    
+    // 보드카
+    if (name.includes('보드카')) return 'rgba(255, 255, 255, 0.3)' // 투명
+    
+    // 위스키 계열
+    if (name.includes('위스키')) return '#D2691E' // 호박색
+    
+    // 테킬라
+    if (name.includes('테킬라')) return '#FFD700' // 금색
+    
+    // 브랜디/코냑
+    if (name.includes('브랜디') || name.includes('코냑')) return '#CD853F' // 페루색
+    
+    // 리큐르
+    if (name.includes('리큐르')) {
+      if (name.includes('오렌지')) return '#FFA500' // 주황색
+      if (name.includes('블루')) return '#4169E1' // 파란색
+      return '#FFD700' // 금색
+    }
+    
+    // 베르무트
+    if (name.includes('베르무트')) {
+      if (name.includes('드라이')) return '#F5F5DC' // 베이지
+      return '#8B0000' // 진한 빨강
+    }
+    
+    // 캄파리
+    if (name.includes('캄파리')) return '#DC143C' // 진한 빨강
+    
+    // 비터
+    if (name.includes('비터')) return '#2F4F4F' // 다크 슬레이트 그레이
+    
+    // 주스류
+    if (name.includes('주스')) {
+      if (name.includes('라임')) return '#32CD32' // 라임 그린
+      if (name.includes('레몬')) return '#FFD700' // 노란색
+      if (name.includes('오렌지')) return '#FF8C00' // 다크 오렌지
+      if (name.includes('크랜베리')) return '#DC143C' // 진한 빨강
+      if (name.includes('파인애플')) return '#FFD700' // 노란색
+      return '#FFA500' // 주황색
+    }
+    
+    // 시럽
+    if (name.includes('시럽')) {
+      if (name.includes('그레나딘')) return '#FF1493' // 딥 핑크
+      return '#FFFFFF' // 흰색 (심플 시럽)
+    }
+    
+    // 설탕
+    if (name.includes('설탕')) return '#FFFFFF' // 흰색
+    
+    // 탄산음료
+    if (name.includes('소다수') || name.includes('토닉') || name.includes('진저')) {
+      return 'rgba(255, 255, 255, 0.5)' // 투명한 흰색
+    }
+    
+    // 과일/식물
+    if (name.includes('민트')) return '#90EE90' // 연한 초록
+    if (name.includes('라임')) return '#32CD32' // 라임 그린
+    if (name.includes('레몬')) return '#FFD700' // 노란색
+    if (name.includes('오렌지')) return '#FF8C00' // 다크 오렌지
+    if (name.includes('체리')) return '#DC143C' // 진한 빨강
+    if (name.includes('올리브')) return '#556B2F' // 올리브 그린
+    
+    // 소금
+    if (name.includes('소금')) return '#FFFFFF' // 흰색
+    
+    // 기본값 (알 수 없는 재료)
+    return '#D3D3D3' // 연한 회색
+  }
+
+  // 단위를 oz로 변환하는 함수
+  const convertToOz = (amount, unit) => {
+    const numAmount = parseFloat(amount) || 0
+    
+    switch (unit) {
+      case 'oz':
+        return numAmount
+      case 'ml':
+        return numAmount / 30 // 1oz = 30ml
+      case 'dash':
+        return numAmount * 0.02 // 대략 0.02oz
+      case 'drop':
+        return numAmount * 0.001 // 대략 0.001oz
+      case 'tsp':
+        return numAmount * 0.167 // 1tsp = 약 0.167oz
+      case 'tbsp':
+        return numAmount * 0.5 // 1tbsp = 약 0.5oz
+      case '개':
+      case '조각':
+        return numAmount * 0.1 // 과일 등은 대략 0.1oz로 가정
+      default:
+        return numAmount // 직접 입력된 단위는 그대로 사용 (숫자로 변환 가능한 경우)
+    }
+  }
+
+  // 재료 비율 계산
+  const calculateIngredientRatios = () => {
+    if (ingredients.length === 0) return []
+
+    // 각 재료를 oz로 변환
+    const ingredientsWithOz = ingredients.map(ing => ({
+      ...ing,
+      ozAmount: convertToOz(ing.amount, ing.unit)
+    }))
+
+    // 총량 계산
+    const totalOz = ingredientsWithOz.reduce((sum, ing) => sum + ing.ozAmount, 0)
+    
+    if (totalOz === 0) return []
+
+    // 비율 계산 및 색상 추가
+    return ingredientsWithOz
+      .map(ing => ({
+        ...ing,
+        percentage: (ing.ozAmount / totalOz) * 100,
+        color: getIngredientColor(ing.name)
+      }))
+      .sort((a, b) => b.percentage - a.percentage) // 비율이 큰 순서대로 정렬
+  }
+
+  const ingredientRatios = calculateIngredientRatios()
 
   const handleAddIngredient = () => {
     if (newIngredient.name.trim() && newIngredient.amount.trim() && newIngredient.unit.trim()) {
@@ -206,46 +357,47 @@ const LabForm = ({ isOpen, onClose }) => {
       )}
       <ModalOverlay onClick={isAnimating ? undefined : onClose}>
         <ModalContent onClick={(e) => e.stopPropagation()}>
-          <ModalTitle>칵테일 제작</ModalTitle>
-          <Form onSubmit={handleSubmit}>
-          <Input
-            type="text"
-            name="name"
-            placeholder="칵테일 이름"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-          <TextArea
-            name="description"
-            placeholder="설명 (선택사항)"
-            value={formData.description}
-            onChange={handleChange}
-            rows="3"
-          />
-          <ImageUploadSection>
-            <ImageInput
-              type="file"
-              id="image-upload"
-              accept="image/*"
-              onChange={handleImageChange}
+          <ModalFormSection>
+            <ModalTitle>칵테일 제작</ModalTitle>
+            <Form onSubmit={handleSubmit}>
+            <Input
+              type="text"
+              name="name"
+              placeholder="칵테일 이름"
+              value={formData.name}
+              onChange={handleChange}
+              required
             />
-            {imagePreview ? (
-              <>
-                <ImagePreview>
-                  <PreviewImage src={imagePreview} alt="미리보기" />
-                </ImagePreview>
-                <RemoveImageButton type="button" onClick={handleRemoveImage}>
-                  이미지 제거
-                </RemoveImageButton>
-              </>
-            ) : (
-              <ImageInputLabel htmlFor="image-upload">
-                📷 이미지 추가 (선택사항)
-              </ImageInputLabel>
-            )}
-          </ImageUploadSection>
-          <IngredientSection>
+            <TextArea
+              name="description"
+              placeholder="설명 (선택사항)"
+              value={formData.description}
+              onChange={handleChange}
+              rows="3"
+            />
+            <ImageUploadSection>
+              <ImageInput
+                type="file"
+                id="image-upload"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+              {imagePreview ? (
+                <>
+                  <ImagePreview>
+                    <PreviewImage src={imagePreview} alt="미리보기" />
+                  </ImagePreview>
+                  <RemoveImageButton type="button" onClick={handleRemoveImage}>
+                    이미지 제거
+                  </RemoveImageButton>
+                </>
+              ) : (
+                <ImageInputLabel htmlFor="image-upload">
+                  📷 이미지 추가 (선택사항)
+                </ImageInputLabel>
+              )}
+            </ImageUploadSection>
+            <IngredientSection>
             <IngredientSelect
               value={newIngredient.name}
               onChange={(e) => setNewIngredient({ ...newIngredient, name: e.target.value })}
@@ -335,17 +487,151 @@ const LabForm = ({ isOpen, onClose }) => {
             onChange={handleChange}
             rows="4"
           />
-          <ButtonGroup>
-            <LoginButtonModal type="submit" disabled={isAnimating}>
-              {isAnimating ? '제작 중...' : '제작'}
-            </LoginButtonModal>
-            <CancelButton type="button" onClick={onClose} disabled={isAnimating}>
-              취소
-            </CancelButton>
-          </ButtonGroup>
-        </Form>
-      </ModalContent>
-    </ModalOverlay>
+            <ButtonGroup>
+              <LoginButtonModal type="submit" disabled={isAnimating}>
+                {isAnimating ? '제작 중...' : '제작'}
+              </LoginButtonModal>
+              <CancelButton type="button" onClick={onClose} disabled={isAnimating}>
+                취소
+              </CancelButton>
+            </ButtonGroup>
+          </Form>
+          </ModalFormSection>
+          <ShakerVisualizationContainer>
+            <ShakerSVGWrapper>
+              <ShakerSVG viewBox="0 0 200 300" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <clipPath id="shaker-clip">
+                    <path d="M 50 60 Q 50 50 60 50 L 140 50 Q 150 50 150 60 L 150 240 Q 150 250 140 250 L 60 250 Q 50 250 50 240 Z" />
+                  </clipPath>
+                  {ingredientRatios.map((ing, index) => (
+                    <linearGradient key={ing.id} id={`gradient-${ing.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor={ing.color} stopOpacity="0.9" />
+                      <stop offset="100%" stopColor={ing.color} stopOpacity="0.7" />
+                    </linearGradient>
+                  ))}
+                </defs>
+                
+                {/* 쉐이커 본체 */}
+                <ShakerBody d="M 50 60 Q 50 50 60 50 L 140 50 Q 150 50 150 60 L 150 240 Q 150 250 140 250 L 60 250 Q 50 250 50 240 Z" />
+                
+                {/* 쉐이커 상단 (뚜껑) */}
+                <ShakerTop d="M 60 50 L 140 50 L 135 30 L 65 30 Z" />
+                
+                {/* 액체 레이어들 */}
+                {ingredientRatios.length > 0 && (
+                  <g clipPath="url(#shaker-clip)">
+                    {(() => {
+                      let accumulatedHeight = 0;
+                      const totalLiquidHeight = 180; // 60~240 사이의 높이
+                      const startY = 240; // 바닥 Y 좌표
+                      const leftX = 50;
+                      const rightX = 150;
+                      const radius = 5;
+                      
+                      return ingredientRatios.map((ing, index) => {
+                        const height = (ing.percentage / 100) * totalLiquidHeight;
+                        const bottomY = startY - accumulatedHeight;
+                        const topY = bottomY - height;
+                        accumulatedHeight += height;
+                        
+                        // 쉐이커 모양에 맞는 경로 생성
+                        const isFirst = index === ingredientRatios.length - 1; // 가장 아래 레이어
+                        const isLast = index === 0; // 가장 위 레이어
+                        
+                        let liquidPath = '';
+                        
+                        if (isFirst && bottomY >= 240 - radius) {
+                          // 바닥 레이어 - 아래쪽 둥근 모서리
+                          liquidPath = `
+                            M ${leftX} ${bottomY}
+                            Q ${leftX} ${bottomY + radius} ${leftX + radius} ${bottomY + radius}
+                            L ${rightX - radius} ${bottomY + radius}
+                            Q ${rightX} ${bottomY + radius} ${rightX} ${bottomY}
+                            L ${rightX} ${topY + radius}
+                            Q ${rightX} ${topY} ${rightX - radius} ${topY}
+                            L ${leftX + radius} ${topY}
+                            Q ${leftX} ${topY} ${leftX} ${topY + radius}
+                            Z
+                          `;
+                        } else if (isLast && topY <= 60 + radius) {
+                          // 상단 레이어 - 위쪽 둥근 모서리
+                          liquidPath = `
+                            M ${leftX} ${bottomY}
+                            L ${leftX} ${topY + radius}
+                            Q ${leftX} ${topY} ${leftX + radius} ${topY}
+                            L ${rightX - radius} ${topY}
+                            Q ${rightX} ${topY} ${rightX} ${topY + radius}
+                            L ${rightX} ${bottomY}
+                            Z
+                          `;
+                        } else {
+                          // 중간 레이어 - 직사각형
+                          liquidPath = `
+                            M ${leftX} ${bottomY}
+                            L ${rightX} ${bottomY}
+                            L ${rightX} ${topY}
+                            L ${leftX} ${topY}
+                            Z
+                          `;
+                        }
+                        
+                        return (
+                          <path
+                            key={ing.id}
+                            d={liquidPath.trim()}
+                            fill={`url(#gradient-${ing.id})`}
+                            opacity="0.85"
+                          />
+                        );
+                      });
+                    })()}
+                  </g>
+                )}
+                
+                {/* 쉐이커 외곽선 강조 */}
+                <path
+                  d="M 50 60 Q 50 50 60 50 L 140 50 Q 150 50 150 60 L 150 240 Q 150 250 140 250 L 60 250 Q 50 250 50 240 Z"
+                  fill="none"
+                  stroke="#A0A0A0"
+                  strokeWidth="2"
+                />
+                <path
+                  d="M 60 50 L 140 50 L 135 30 L 65 30 Z"
+                  fill="none"
+                  stroke="#A0A0A0"
+                  strokeWidth="2"
+                />
+              </ShakerSVG>
+            </ShakerSVGWrapper>
+            <ShakerInfo>
+              <ShakerInfoTitle>재료 비율</ShakerInfoTitle>
+              {ingredientRatios.length > 0 ? (
+                <IngredientRatioList>
+                  {ingredientRatios.map((ing) => (
+                    <IngredientRatioItem key={ing.id}>
+                      <ColorIndicator color={ing.color} />
+                      <RatioText>{ing.name}</RatioText>
+                      <PercentageText>{ing.percentage.toFixed(1)}%</PercentageText>
+                    </IngredientRatioItem>
+                  ))}
+                </IngredientRatioList>
+              ) : (
+                <IngredientRatioList>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    color: 'rgba(221, 230, 237, 0.7)', 
+                    padding: '20px',
+                    fontSize: '14px'
+                  }}>
+                    재료를 추가하면<br />비율이 표시됩니다
+                  </div>
+                </IngredientRatioList>
+              )}
+            </ShakerInfo>
+          </ShakerVisualizationContainer>
+        </ModalContent>
+      </ModalOverlay>
     </>
   )
 }
