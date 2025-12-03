@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import AppRoutes from './routes/Routes'
-
+import AppRoutes from './routes/AppRoutes'
 import './App.css'
 
 function App() {
