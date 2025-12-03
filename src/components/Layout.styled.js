@@ -188,6 +188,28 @@ export const ModalContent = styled.div`
     min-width: 320px;
     max-width: 400px;
     width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: rgba(221, 230, 237, 0.5);
+        border-radius: 4px;
+        
+        &:hover {
+            background: rgba(221, 230, 237, 0.7);
+        }
+    }
 `
 
 export const ModalTitle = styled.h2`
@@ -221,6 +243,56 @@ export const Input = styled.input`
 
     &::placeholder {
         color: rgba(39, 55, 77, 0.5);
+    }
+`
+
+export const TextArea = styled.textarea`
+    padding: 12px 16px;
+    border: 2px solid rgba(221, 230, 237, 0.3);
+    border-radius: 8px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #27374D;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    resize: vertical;
+
+    &:focus {
+        outline: none;
+        border-color: #DDE6ED;
+        background: #ffffff;
+    }
+
+    &::placeholder {
+        color: rgba(39, 55, 77, 0.5);
+    }
+`
+
+export const Select = styled.select`
+    padding: 12px 16px;
+    border: 2px solid rgba(221, 230, 237, 0.3);
+    border-radius: 8px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #27374D;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2327374D' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
+
+    &:focus {
+        outline: none;
+        border-color: #DDE6ED;
+        background-color: #ffffff;
+    }
+
+    option {
+        background: #ffffff;
+        color: #27374D;
     }
 `
 
@@ -265,5 +337,179 @@ export const CancelButton = styled.button`
         background: rgba(221, 230, 237, 0.3);
         border-color: #DDE6ED;
         color: #ffffff;
+    }
+`
+
+export const IngredientSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+`
+
+export const IngredientSelect = styled(Select)`
+    width: 100%;
+`
+
+export const IngredientInputGroup = styled.div`
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+`
+
+export const AmountInput = styled(Input)`
+    flex: 1;
+    text-align: center;
+    min-width: 80px;
+`
+
+export const UnitSelect = styled(Select)`
+    width: 100px;
+    flex-shrink: 0;
+`
+
+export const AddIngredientButton = styled.button`
+    padding: 12px 16px;
+    background: rgba(39, 55, 77, 0.2);
+    color: #DDE6ED;
+    border: 2px solid rgba(221, 230, 237, 0.3);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    &:hover {
+        background: rgba(39, 55, 77, 0.3);
+        border-color: #DDE6ED;
+        color: #ffffff;
+    }
+`
+
+export const IngredientList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: rgba(221, 230, 237, 0.4);
+        border-radius: 3px;
+        
+        &:hover {
+            background: rgba(221, 230, 237, 0.6);
+        }
+    }
+`
+
+export const IngredientItem = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+    color: #27374D;
+    font-size: 14px;
+`
+
+export const IngredientInfo = styled.span`
+    flex: 1;
+`
+
+export const RemoveIngredientButton = styled.button`
+    padding: 4px 8px;
+    background: rgba(111, 78, 55, 0.1);
+    color: #6F4E37;
+    border: 1px solid rgba(111, 78, 55, 0.3);
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(111, 78, 55, 0.2);
+        border-color: rgba(111, 78, 55, 0.5);
+    }
+`
+
+export const ImageUploadSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+`
+
+export const ImageInput = styled.input`
+    display: none;
+`
+
+export const ImageInputLabel = styled.label`
+    padding: 12px 16px;
+    border: 2px solid rgba(221, 230, 237, 0.3);
+    border-radius: 8px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #27374D;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    font-weight: 600;
+
+    &:hover {
+        border-color: #DDE6ED;
+        background: #ffffff;
+    }
+`
+
+export const ImagePreview = styled.div`
+    width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid rgba(221, 230, 237, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+`
+
+export const PreviewImage = styled.img`
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    max-height: 200px;
+`
+
+export const RemoveImageButton = styled.button`
+    padding: 8px 16px;
+    background: rgba(111, 78, 55, 0.1);
+    color: #6F4E37;
+    border: 1px solid rgba(111, 78, 55, 0.3);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-self: center;
+
+    &:hover {
+        background: rgba(111, 78, 55, 0.2);
+        border-color: rgba(111, 78, 55, 0.5);
     }
 `

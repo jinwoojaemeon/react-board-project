@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuthStore } from '../stores/authStore'
 import { ModalOverlay, ModalContent, ModalTitle, Form, Input, ButtonGroup, LoginButtonModal, CancelButton } from './Layout.styled'
 
 const LoginModal = ({ isOpen, onClose }) => {
-  const { login } = useAuth()
+  const { login } = useAuthStore()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
