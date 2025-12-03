@@ -185,13 +185,19 @@ export const ModalContent = styled.div`
     padding: 32px;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    min-width: 320px;
-    max-width: 400px;
+    min-width: 700px;
+    max-width: 1000px;
     width: 90%;
     max-height: 90vh;
-    overflow-y: auto;
+    overflow: hidden;
     display: flex;
-    flex-direction: column;
+    gap: 24px;
+    
+    @media (max-width: 768px) {
+        flex-direction: column;
+        min-width: 90%;
+        max-width: 90%;
+    }
     
     &::-webkit-scrollbar {
         width: 8px;
