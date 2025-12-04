@@ -23,9 +23,11 @@ import {
   LikeCount
 } from './Home.styled'
 import { useCocktailStore } from '../stores/cocktailStore'
+import { useAuthStore } from '../stores/authStore'
 
 const Home = () => {
-  const { customCocktails, likedCocktails, likeHistory, toggleLike } = useCocktailStore()
+  const { customCocktails, likeHistory, toggleLike, isLikedByUser } = useCocktailStore()
+  const { user } = useAuthStore()
 
   // 좋아요 수 계산
   const getLikeCount = (id) => {
@@ -49,13 +51,13 @@ const Home = () => {
   // Total: 좋아요가 있는 모든 칵테일을 좋아요 수 순으로 정렬
   const totalPopular = useMemo(() => {
     return customCocktails
-      .filter(cocktail => likedCocktails.includes(cocktail.id))
+      .filter(cocktail => getLikeCount(cocktail.id) > 0)
       .map(cocktail => ({
         ...cocktail,
         likeCount: getLikeCount(cocktail.id)
       }))
       .sort((a, b) => b.likeCount - a.likeCount)
-  }, [customCocktails, likedCocktails, likeHistory])
+  }, [customCocktails, likeHistory])
 
   // 주간: 최근 7일 내에 좋아요를 받은 칵테일
   const weeklyPopular = useMemo(() => {
@@ -86,7 +88,7 @@ const Home = () => {
   }, [customCocktails, likeHistory])
 
   const renderCocktailCard = (cocktail) => {
-    const isLiked = likedCocktails.includes(cocktail.id)
+    const isLiked = isLikedByUser(cocktail.id, user?.id)
     const likeCount = getLikeCount(cocktail.id)
 
     return (
@@ -107,7 +109,7 @@ const Home = () => {
               {likeCount > 0 && <LikeCount>{likeCount}</LikeCount>}
               <LikeButton
                 className={isLiked ? 'liked' : ''}
-                onClick={() => toggleLike(cocktail.id)}
+                onClick={() => toggleLike(cocktail.id, user?.id)}
                 aria-label={isLiked ? '좋아요 취소' : '좋아요'}
               >
                 <svg

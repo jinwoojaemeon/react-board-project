@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useCocktailStore } from '../stores/cocktailStore'
+import { useAuthStore } from '../stores/authStore'
 import {
   ModalOverlay,
   ModalContent,
@@ -17,9 +18,6 @@ import {
   AmountInput,
   UnitSelect,
   AddIngredientButton,
-  IngredientList,
-  IngredientItem,
-  IngredientInfo,
   RemoveIngredientButton,
   ImageUploadSection,
   ImageInput,
@@ -49,6 +47,7 @@ import shakerIcon from '../resources/icons/shaker.png'
 
 const LabForm = ({ isOpen, onClose }) => {
   const { addCocktail } = useCocktailStore()
+  const { user } = useAuthStore()
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -69,6 +68,8 @@ const LabForm = ({ isOpen, onClose }) => {
   const [isAnimating, setIsAnimating] = useState(false)
   const [animationStage, setAnimationStage] = useState('')
   const [pendingCocktail, setPendingCocktail] = useState(null)
+  const [newlyAddedIngredientId, setNewlyAddedIngredientId] = useState(null)
+  const previousIngredientsRef = useRef([])
 
   const commonIngredients = [
     '화이트 럼', '다크 럼', '진', '보드카', '위스키', '버번 위스키', '스카치 위스키',
@@ -202,12 +203,14 @@ const LabForm = ({ isOpen, onClose }) => {
     
     if (totalOz === 0) return []
 
-    // 비율 계산 및 색상 추가
+    // 비율 계산 및 색상 추가 (원본 재료 정보 유지)
     return ingredientsWithOz
       .map(ing => ({
         ...ing,
         percentage: (ing.ozAmount / totalOz) * 100,
-        color: getIngredientColor(ing.name)
+        color: getIngredientColor(ing.name),
+        originalAmount: ing.amount,
+        originalUnit: ing.unit
       }))
       .sort((a, b) => b.percentage - a.percentage) // 비율이 큰 순서대로 정렬
   }
@@ -216,16 +219,32 @@ const LabForm = ({ isOpen, onClose }) => {
 
   const handleAddIngredient = () => {
     if (newIngredient.name.trim() && newIngredient.amount.trim() && newIngredient.unit.trim()) {
-      setIngredients([...ingredients, {
-        id: Date.now(),
+      const newId = Date.now()
+      const newIngredientData = {
+        id: newId,
         name: newIngredient.name.trim(),
         amount: newIngredient.amount.trim(),
         unit: newIngredient.unit.trim()
-      }])
+      }
+      setIngredients([...ingredients, newIngredientData])
+      setNewlyAddedIngredientId(newId)
       setNewIngredient({ name: '', amount: '', unit: 'oz' })
       setIsCustomUnit(false)
+      
+      // 이전 재료 목록 업데이트
+      previousIngredientsRef.current = [...ingredients, newIngredientData]
+      
+      // 애니메이션 완료 후 상태 초기화
+      setTimeout(() => {
+        setNewlyAddedIngredientId(null)
+      }, 600)
     }
   }
+  
+  // 재료가 제거될 때 이전 목록 업데이트
+  useEffect(() => {
+    previousIngredientsRef.current = ingredients
+  }, [ingredients])
 
   const handleRemoveIngredient = (id) => {
     setIngredients(ingredients.filter(ing => ing.id !== id))
@@ -280,8 +299,8 @@ const LabForm = ({ isOpen, onClose }) => {
     if (animationStage === 'shake-second') {
       const timer = setTimeout(() => {
         // 애니메이션 완료 후 칵테일 추가
-        if (pendingCocktail) {
-          addCocktail(pendingCocktail)
+        if (pendingCocktail && user) {
+          addCocktail(pendingCocktail, user.id)
         }
         
         // 폼 초기화
@@ -343,6 +362,11 @@ const LabForm = ({ isOpen, onClose }) => {
   }
 
   if (!isOpen) return null
+
+  // 로그인하지 않은 유저는 폼을 열 수 없음
+  if (!user) {
+    return null
+  }
 
   return (
     <>
@@ -446,23 +470,6 @@ const LabForm = ({ isOpen, onClose }) => {
                 추가
               </AddIngredientButton>
             </IngredientInputGroup>
-            {ingredients.length > 0 && (
-              <IngredientList>
-                {ingredients.map(ing => (
-                  <IngredientItem key={ing.id}>
-                    <IngredientInfo>
-                      {ing.name} {ing.amount && `${ing.amount}${ing.unit}`}
-                    </IngredientInfo>
-                    <RemoveIngredientButton
-                      type="button"
-                      onClick={() => handleRemoveIngredient(ing.id)}
-                    >
-                      삭제
-                    </RemoveIngredientButton>
-                  </IngredientItem>
-                ))}
-              </IngredientList>
-            )}
           </IngredientSection>
           <Select
             name="glass"
@@ -576,13 +583,28 @@ const LabForm = ({ isOpen, onClose }) => {
                           `;
                         }
                         
+                        // 각 레이어를 감싸는 g 요소 (밑에서부터 차오르는 효과)
+                        const isNewlyAdded = newlyAddedIngredientId === ing.id
+                        const wasInPrevious = previousIngredientsRef.current.some(prev => prev.id === ing.id)
+                        const shouldAnimate = isNewlyAdded || (!wasInPrevious && previousIngredientsRef.current.length > 0)
+                        
                         return (
-                          <path
+                          <g 
                             key={ing.id}
-                            d={liquidPath.trim()}
-                            fill={`url(#gradient-${ing.id})`}
-                            opacity="0.85"
-                          />
+                            className="liquid-layer-container"
+                            style={{
+                              transformOrigin: `${(leftX + rightX) / 2}px ${bottomY}px`,
+                              transform: shouldAnimate ? 'scaleY(0)' : 'scaleY(1)',
+                              animation: shouldAnimate ? 'fillUp 0.6s ease-out forwards' : 'none',
+                              animationDelay: isNewlyAdded ? '0s' : `${index * 0.05}s`
+                            }}
+                          >
+                            <path
+                              d={liquidPath.trim()}
+                              fill={`url(#gradient-${ing.id})`}
+                              opacity="0.85"
+                            />
+                          </g>
                         );
                       });
                     })()}
@@ -611,8 +633,26 @@ const LabForm = ({ isOpen, onClose }) => {
                   {ingredientRatios.map((ing) => (
                     <IngredientRatioItem key={ing.id}>
                       <ColorIndicator color={ing.color} />
-                      <RatioText>{ing.name}</RatioText>
+                      <RatioText>
+                        <span style={{ fontWeight: 600 }}>{ing.name}</span>
+                        {ing.originalAmount && (
+                          <span style={{ 
+                            fontSize: '12px', 
+                            opacity: 0.7, 
+                            marginLeft: '8px',
+                            fontWeight: 'normal'
+                          }}>
+                            {ing.originalAmount}{ing.originalUnit}
+                          </span>
+                        )}
+                      </RatioText>
                       <PercentageText>{ing.percentage.toFixed(1)}%</PercentageText>
+                      <RemoveIngredientButton
+                        type="button"
+                        onClick={() => handleRemoveIngredient(ing.id)}
+                      >
+                        삭제
+                      </RemoveIngredientButton>
                     </IngredientRatioItem>
                   ))}
                 </IngredientRatioList>
