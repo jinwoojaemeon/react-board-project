@@ -138,6 +138,25 @@ export const LoginButton = styled.button`
     }
 `
 
+export const SignupButton = styled.button`
+    background: linear-gradient(135deg, #526D82 0%, #27374D 100%);
+    color: #DDE6ED;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: linear-gradient(135deg, #27374D 0%, #526D82 100%);
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+`
+
 export const UserInfo = styled.div`
     display: flex;
     align-items: center;

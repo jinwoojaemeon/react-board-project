@@ -1,19 +1,14 @@
-import React, { useState } from 'react'
-import { HeaderContainer, Nav, Logo, NavLinks, NavLink, UserSection, LoginButton, UserInfo, LogoutButton } from './Layout.styled'
-import { useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import React from 'react'
+import { HeaderContainer, Nav, Logo, NavLinks, NavLink, UserSection, LoginButton, SignupButton, UserInfo, LogoutButton } from './Layout.styled'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { ROUTES } from '../routes/routes'
 import { useAuthStore } from '../stores/authStore'
-import LoginModal from './LoginModal'
 
 const Header = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const { user, logout } = useAuthStore()
-    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
 
-    useEffect(() => {
-      console.log(location.pathname);
-    })
     const isActive = (path) => {
       return location.pathname === path ? 'active' : '';
     }
@@ -33,12 +28,14 @@ const Header = () => {
                   <LogoutButton onClick={logout}>로그아웃</LogoutButton>
                 </UserInfo>
               ) : (
-                <LoginButton onClick={() => setIsLoginModalOpen(true)}>로그인</LoginButton>
+                <>
+                  <LoginButton onClick={() => navigate(ROUTES.LOGIN)}>로그인</LoginButton>
+                  <SignupButton onClick={() => navigate(ROUTES.SIGNUP)}>회원가입</SignupButton>
+                </>
               )}
             </UserSection>
           </NavLinks>
         </Nav>
-        <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
       </HeaderContainer>
     )
 }

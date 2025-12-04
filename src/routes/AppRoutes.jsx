@@ -4,6 +4,8 @@ import Home from '../pages/Home'
 import Recipes from '../pages/Recipes'
 import Lab from '../pages/Lab'
 import LabBoard from '../pages/LabBoard'
+import Signup from '../pages/Signup'
+import Login from '../pages/Login'
 import Layout from '../components/Layout'
 import { ROUTES } from './routes' 
 const AppRoutes = () => {
@@ -15,6 +17,8 @@ const AppRoutes = () => {
                 <Route path={ROUTES.RECIPE} element={<Recipes />} />
                 <Route path={ROUTES.LAB} element={<Lab />} />
                 <Route path={ROUTES.LABBOARD} element={<LabBoard />} />
+                <Route path={ROUTES.SIGNUP} element={<Signup />} />
+                <Route path={ROUTES.LOGIN} element={<Login />} />
             </Route>
         </Routes>
     </BrowserRouter>

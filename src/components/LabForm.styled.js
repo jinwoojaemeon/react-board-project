@@ -109,30 +109,11 @@ export const ShakerVisualizationContainer = styled.div`
     flex-shrink: 0;
     position: sticky;
     top: 0;
-    max-height: calc(90vh - 64px);
-    overflow-y: auto;
+    align-self: flex-start;
     
     @media (max-width: 768px) {
         width: 100%;
         position: relative;
-    }
-    
-    &::-webkit-scrollbar {
-        width: 6px;
-    }
-    
-    &::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 3px;
-    }
-    
-    &::-webkit-scrollbar-thumb {
-        background: rgba(221, 230, 237, 0.4);
-        border-radius: 3px;
-        
-        &:hover {
-            background: rgba(221, 230, 237, 0.6);
-        }
     }
 `
 
@@ -152,6 +133,19 @@ export const ShakerSVG = styled.svg`
     width: 100%;
     height: 100%;
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+    
+    @keyframes fillUp {
+        from {
+            transform: scaleY(0);
+        }
+        to {
+            transform: scaleY(1);
+        }
+    }
+    
+    .liquid-layer-container {
+        transform-origin: bottom;
+    }
 `
 
 export const ShakerBody = styled.path`
@@ -191,26 +185,7 @@ export const IngredientRatioList = styled.div`
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 150px;
-    overflow-y: auto;
-    
-    &::-webkit-scrollbar {
-        width: 6px;
-    }
-    
-    &::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 3px;
-    }
-    
-    &::-webkit-scrollbar-thumb {
-        background: rgba(221, 230, 237, 0.4);
-        border-radius: 3px;
-        
-        &:hover {
-            background: rgba(221, 230, 237, 0.6);
-        }
-    }
+    width: 100%;
 `
 
 export const IngredientRatioItem = styled.div`
@@ -222,6 +197,7 @@ export const IngredientRatioItem = styled.div`
     border-radius: 6px;
     font-size: 14px;
     color: #27374D;
+    position: relative;
 `
 
 export const ColorIndicator = styled.div`

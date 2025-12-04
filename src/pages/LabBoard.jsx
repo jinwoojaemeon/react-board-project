@@ -21,13 +21,11 @@ import {
   IngredientTag
 } from './LabBoard.styled'
 import { useCocktailStore } from '../stores/cocktailStore'
+import { useAuthStore } from '../stores/authStore'
 
 const LabBoard = () => {
-  const { customCocktails, likedCocktails, likeHistory, toggleLike } = useCocktailStore()
-
-  const getLikeCount = (id) => {
-    return likeHistory[id] ? likeHistory[id].length : 0
-  }
+  const { customCocktails, likeHistory, toggleLike, isLikedByUser, getLikeCount } = useCocktailStore()
+  const { user } = useAuthStore()
 
   return (
     <Container>
@@ -37,7 +35,7 @@ const LabBoard = () => {
       ) : (
         <RecipesGrid>
           {customCocktails.map((cocktail) => {
-            const isLiked = likedCocktails.includes(cocktail.id)
+            const isLiked = isLikedByUser(cocktail.id, user?.id)
             const likeCount = getLikeCount(cocktail.id)
             
             return (
@@ -58,7 +56,7 @@ const LabBoard = () => {
                       {likeCount > 0 && <LikeCount>{likeCount}</LikeCount>}
                       <LikeButton
                         className={isLiked ? 'liked' : ''}
-                        onClick={() => toggleLike(cocktail.id)}
+                        onClick={() => toggleLike(cocktail.id, user?.id)}
                         aria-label={isLiked ? '좋아요 취소' : '좋아요'}
                       >
                         <svg

@@ -93,6 +93,44 @@ export const EmptyMessage = styled.div`
     background: transparent;
 `
 
+export const LoginPrompt = styled.div`
+    text-align: center;
+    padding: 60px 20px;
+    color: #6F4E37;
+    background: linear-gradient(135deg, #FAF7F2 0%, #F8F4EF 50%, #F5F1EA 100%);
+    border-radius: 12px;
+    border: 2px solid rgba(111, 78, 55, 0.2);
+    box-shadow: 0 4px 16px rgba(111, 78, 55, 0.3);
+    
+    p {
+        font-size: 18px;
+        margin: 0 0 24px 0;
+        font-weight: 600;
+    }
+    
+    button {
+        padding: 12px 24px;
+        background: rgba(111, 78, 55, 0.8);
+        color: #FAF7F2;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        &:hover {
+            background: rgba(111, 78, 55, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(111, 78, 55, 0.3);
+        }
+        
+        &:active {
+            transform: translateY(0);
+        }
+    }
+`
+
 export const DeleteButton = styled.button`
     background: rgba(111, 78, 55, 0.1);
     color: #6F4E37;
