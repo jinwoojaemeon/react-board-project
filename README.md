@@ -15,8 +15,9 @@ React Router를 통해 페이지 라우팅을 처리합니다.
 |------|------------|
 | Frontend | React 19, JavaScript (JSX) |
 | 스타일링 | Styled Components |
-| 상태 관리 | Zustand |
-| 라우팅 | React Router DOM |
+| 상태 관리 | Zustand (persist middleware 포함) |
+| 라우팅 | React Router DOM v7 |
+| 빌드 도구 | Vite |
 
 ## 🛠️ 설치 및 실행 (Installation & Run)
 
@@ -68,20 +69,24 @@ react-cocktailLab-project/
 │   │   ├── Layout.jsx        # 레이아웃 컴포넌트
 │   │   └── *.styled.js       # Styled Components 파일
 │   ├── pages/                # 페이지 컴포넌트
-│   │   ├── Home.jsx          # 메인 페이지
+│   │   ├── Home.jsx          # 메인 페이지 (인기 칵테일 추천)
 │   │   ├── Recipes.jsx       # 레시피 목록 페이지
 │   │   ├── Lab.jsx           # 나만의 칵테일 랩 페이지
 │   │   ├── LabBoard.jsx      # 칵테일 랩 게시판 페이지
+│   │   ├── Login.jsx         # 로그인 페이지
+│   │   ├── Signup.jsx        # 회원가입 페이지
+│   │   ├── NotFound.jsx      # 404 에러 페이지
 │   │   └── *.styled.js       # 페이지별 스타일 파일
 │   ├── routes/               # 라우팅 설정
 │   │   ├── AppRoutes.jsx     # 라우트 컴포넌트
-│   │   └── routes.js         # 라우트 설정
+│   │   └── routes.js         # 라우트 상수 정의
 │   ├── stores/               # Zustand 상태 관리
-│   │   ├── authStore.js      # 인증 상태 관리
-│   │   └── cocktailStore.js  # 칵테일 상태 관리
+│   │   ├── authStore.js      # 인증 상태 관리 (로그인/회원가입)
+│   │   └── cocktailStore.js  # 칵테일 상태 관리 (CRUD, 좋아요)
 │   ├── resources/            # 리소스 파일
 │   │   ├── cocktailImages/   # 칵테일 이미지
-│   │   └── icons/            # 아이콘 이미지
+│   │   ├── icons/           # 아이콘 이미지
+│   │   └── images/          # 기타 이미지 (404 등)
 │   ├── App.jsx               # 메인 App 컴포넌트
 │   ├── main.jsx              # 진입점
 │   └── index.css             # 전역 스타일
@@ -93,13 +98,39 @@ react-cocktailLab-project/
 
 ## 🌟 주요 기능 (Key Features)
 
-✅ 칵테일 레시피 조회 및 상세 정보 확인  
-✅ 커스텀 칵테일 제작 (이름, 설명, 재료, 이미지 등록)  
-✅ 나만의 칵테일 랩에서 제작한 칵테일 관리 (조회, 삭제)  
-✅ Zustand를 통한 전역 상태 관리 (칵테일 데이터, 좋아요 기능)  
-✅ Styled Components를 활용한 컴포넌트 기반 스타일링  
-✅ React Router를 통한 SPA 라우팅 구현  
-✅ 반응형 디자인으로 다양한 화면 크기 지원
+### 🔐 인증 시스템
+- ✅ 회원가입 (아이디, 비밀번호, 닉네임, 이메일)
+- ✅ 로그인/로그아웃
+- ✅ 아이디 중복 체크
+- ✅ 로컬스토리지 기반 세션 유지 (Zustand persist)
+
+### 🍹 칵테일 관리
+- ✅ 커스텀 칵테일 제작 (이름, 설명, 재료, 용량, 유리잔, 제조법, 이미지)
+- ✅ 나만의 칵테일 랩에서 제작한 칵테일 관리 (조회, 삭제)
+- ✅ 칵테일 랩 게시판에서 모든 사용자의 칵테일 조회
+- ✅ 사용자별 칵테일 필터링
+
+### ❤️ 좋아요 시스템
+- ✅ 칵테일 좋아요/좋아요 취소
+- ✅ 좋아요 수 실시간 표시
+- ✅ 사용자별 좋아요 상태 관리
+- ✅ 좋아요 히스토리 추적 (타임스탬프 기반)
+
+### 📊 인기 칵테일 추천
+- ✅ 전체 인기 칵테일 (Total Popular) - 좋아요 수 기준 상위 3개
+- ✅ 주간 인기 칵테일 (Weekly Popular) - 최근 7일 내 좋아요 기준
+- ✅ 일일 인기 칵테일 (Daily Popular) - 오늘 받은 좋아요 기준
+
+### 🎨 UI/UX
+- ✅ Styled Components를 활용한 컴포넌트 기반 스타일링
+- ✅ 반응형 디자인으로 다양한 화면 크기 지원
+- ✅ 칵테일 제작 시 애니메이션 효과
+- ✅ 404 에러 페이지
+
+### 🔧 기술적 특징
+- ✅ Zustand를 통한 전역 상태 관리 (persist middleware로 로컬스토리지 연동)
+- ✅ React Router를 통한 SPA 라우팅 구현
+- ✅ 컴포넌트 기반 개발로 재사용성과 유지보수성 향상
 
 ## 📸 화면 미리보기 (Preview)
 
@@ -112,9 +143,30 @@ react-cocktailLab-project/
 
 ## 💡 학습 포인트 (Learning Points)
 
-- React Hooks (useState, useEffect)를 활용한 컴포넌트 상태 관리
-- Zustand를 통한 전역 상태 관리 패턴 학습
-- Styled Components를 이용한 CSS-in-JS 스타일링 방법
-- React Router를 활용한 SPA 라우팅 구현
+### React 기초
+- React Hooks (useState, useEffect, useMemo, useRef)를 활용한 컴포넌트 상태 관리
 - 컴포넌트 기반 개발로 재사용성과 유지보수성 향상
+- 조건부 렌더링 및 리스트 렌더링
+
+### 상태 관리
+- Zustand를 통한 전역 상태 관리 패턴 학습
+- Zustand persist middleware를 활용한 로컬스토리지 연동
+- 상태 관리 최적화 (불변성 유지, 타입 안전성)
+
+### 스타일링
+- Styled Components를 이용한 CSS-in-JS 스타일링 방법
+- 동적 스타일링 및 테마 관리
+- 반응형 디자인 구현
+
+### 라우팅
+- React Router DOM v7을 활용한 SPA 라우팅 구현
+- 중첩 라우팅 및 404 에러 처리
+
+### 개발 도구
 - Vite를 통한 빠른 개발 환경 및 빌드 최적화
+- ESLint를 통한 코드 품질 관리
+
+### 데이터 관리
+- 로컬스토리지 기반 데이터 영속성
+- 복잡한 데이터 구조 관리 (객체, 배열, 중첩 구조)
+- 타임스탬프 기반 데이터 필터링 및 정렬
