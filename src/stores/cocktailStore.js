@@ -29,14 +29,19 @@ export const useCocktailStore = create(
           // 모든 사용자의 likedCocktails에서 해당 id 제거
           const newLikedCocktails = { ...state.likedCocktails }
           Object.keys(newLikedCocktails).forEach(userId => {
-            newLikedCocktails[userId] = newLikedCocktails[userId].filter(likedId => likedId !== id)
-            if (newLikedCocktails[userId].length === 0) {
-              delete newLikedCocktails[userId]
+            // 배열인지 확인하고 필터링 (타입 안전성을 위해 느슨한 비교 사용)
+            if (Array.isArray(newLikedCocktails[userId])) {
+              newLikedCocktails[userId] = newLikedCocktails[userId].filter(likedId => String(likedId) !== String(id))
+              if (newLikedCocktails[userId].length === 0) {
+                delete newLikedCocktails[userId]
+              }
             }
           })
           
+          // 타입 안전성을 위해 문자열로 변환하여 비교
+          const idString = String(id)
           return {
-            customCocktails: state.customCocktails.filter(cocktail => cocktail.id !== id),
+            customCocktails: state.customCocktails.filter(cocktail => String(cocktail.id) !== idString),
             likedCocktails: newLikedCocktails,
             likeHistory: newLikeHistory
           }
