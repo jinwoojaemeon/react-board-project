@@ -538,3 +538,12 @@ export const RemoveImageButton = styled.button`
         border-color: rgba(111, 78, 55, 0.5);
     }
 `
+
+export const NotFoundImage = styled.img`
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    border-radius: 12px;
+`

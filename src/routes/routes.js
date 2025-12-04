@@ -5,5 +5,6 @@ export const ROUTES = {
   LABBOARD: '/labboard',
   SIGNUP: '/signup',
   LOGIN: '/login',
+  NOTFOUND: '*',
 }
 

@@ -8,6 +8,7 @@ import Signup from '../pages/Signup'
 import Login from '../pages/Login'
 import Layout from '../components/Layout'
 import { ROUTES } from './routes' 
+import NotFound from '../pages/NotFound'
 const AppRoutes = () => {
   return (
     <BrowserRouter>
@@ -19,6 +20,7 @@ const AppRoutes = () => {
                 <Route path={ROUTES.LABBOARD} element={<LabBoard />} />
                 <Route path={ROUTES.SIGNUP} element={<Signup />} />
                 <Route path={ROUTES.LOGIN} element={<Login />} />
+                <Route path={ROUTES.NOTFOUND} element={<NotFound />} />
             </Route>
         </Routes>
     </BrowserRouter>
