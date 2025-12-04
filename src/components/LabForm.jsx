@@ -77,13 +77,16 @@ const LabForm = ({ isOpen, onClose }) => {
     '베르무트', '드라이 베르무트', '스위트 베르무트', '캄파리', '앵거스투라 비터',
     '라임 주스', '레몬 주스', '오렌지 주스', '크랜베리 주스', '파인애플 주스',
     '그레나딘 시럽', '심플 시럽', '락스' ,'설탕', '소다수', '토닉 워터', '진저 에일',
-    '민트', '라임', '레몬', '오렌지', '올리브', '체리', '소금'
+    '민트', '라임', '레몬', '오렌지', '올리브', '체리', '소금' 
   ]
 
   // 재료별 색상 매핑 함수
   const getIngredientColor = (ingredientName) => {
     const name = ingredientName.toLowerCase()
     
+    // 락스
+    if (name.includes('락스')) return '#8a8a8a' 
+
     // 럼 계열
     if (name.includes('럼')) {
       if (name.includes('다크')) return '#8B4513' // 갈색

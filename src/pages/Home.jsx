@@ -48,7 +48,7 @@ const Home = () => {
     return timestampDate.getTime() === today.getTime()
   }
 
-  // Total: 좋아요가 있는 모든 칵테일을 좋아요 수 순으로 정렬
+  // Total: 좋아요가 있는 모든 칵테일을 좋아요 수 순으로 정렬해서 상위 3개만
   const totalPopular = useMemo(() => {
     return customCocktails
       .filter(cocktail => getLikeCount(cocktail.id) > 0)
@@ -57,9 +57,10 @@ const Home = () => {
         likeCount: getLikeCount(cocktail.id)
       }))
       .sort((a, b) => b.likeCount - a.likeCount)
+      .slice(0, 3)
   }, [customCocktails, likeHistory])
 
-  // 주간: 최근 7일 내에 좋아요를 받은 칵테일
+  // 주간: 최근 7일 내에 좋아요를 받은 칵테일 중 상위 3개만
   const weeklyPopular = useMemo(() => {
     return customCocktails
       .filter(cocktail => {
@@ -71,9 +72,10 @@ const Home = () => {
         likeCount: likeHistory[cocktail.id].filter(timestamp => isWithinWeek(timestamp)).length
       }))
       .sort((a, b) => b.likeCount - a.likeCount)
+      .slice(0, 3)
   }, [customCocktails, likeHistory])
 
-  // 일별: 오늘 좋아요를 받은 칵테일
+  // 일별: 오늘 좋아요를 받은 칵테일 중 상위 3개만
   const dailyPopular = useMemo(() => {
     return customCocktails
       .filter(cocktail => {
@@ -85,6 +87,7 @@ const Home = () => {
         likeCount: likeHistory[cocktail.id].filter(timestamp => isToday(timestamp)).length
       }))
       .sort((a, b) => b.likeCount - a.likeCount)
+      .slice(0, 3)
   }, [customCocktails, likeHistory])
 
   const renderCocktailCard = (cocktail) => {
@@ -146,10 +149,10 @@ const Home = () => {
 
   return (
     <Container>
-      <PageTitle>인기 칵테일</PageTitle>
+      <PageTitle>Popular Custom Cocktails</PageTitle>
       
       <Section>
-        <SectionTitle>전체 인기</SectionTitle>
+        <SectionTitle>Total Popular</SectionTitle>
         {totalPopular.length === 0 ? (
           <EmptyMessage>아직 좋아요를 받은 칵테일이 없습니다.</EmptyMessage>
         ) : (
@@ -160,7 +163,7 @@ const Home = () => {
       </Section>
 
       <Section>
-        <SectionTitle>주간 인기</SectionTitle>
+        <SectionTitle>Weekly Popular</SectionTitle>
         {weeklyPopular.length === 0 ? (
           <EmptyMessage>최근 7일간 좋아요를 받은 칵테일이 없습니다.</EmptyMessage>
         ) : (
@@ -171,7 +174,7 @@ const Home = () => {
       </Section>
 
       <Section>
-        <SectionTitle>오늘의 인기</SectionTitle>
+        <SectionTitle>Daily Popular</SectionTitle>
         {dailyPopular.length === 0 ? (
           <EmptyMessage>오늘 좋아요를 받은 칵테일이 없습니다.</EmptyMessage>
         ) : (
