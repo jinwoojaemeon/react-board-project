@@ -134,10 +134,15 @@ react-cocktailLab-project/
 
 | 기능 | 미리보기 |
 |------|-----------|
-| 메인 화면 | ![Home Page](./assets/home.png) |
-| 레시피 목록 | ![Recipes Page](./assets/recipes.png) |
-| 칵테일 랩 | ![Lab Page](./assets/lab.png) |
-| 칵테일 제작 폼 | ![Lab Form](./assets/lab-form.png) |
+| 메인 화면 (홈페이지) | ![Home Page](./src/resources/images/HomePage.png) |
+| 레시피 목록 | ![Recipes Page](./src/resources/images/Recipe.png) |
+| 칵테일 랩 (나만의 칵테일) | ![Lab Page](./src/resources/images/Lab.png) |
+| 칵테일 제작 폼 | ![Lab Form](./src/resources/images/labForm.png) |
+| 칵테일 랩 게시판 | ![Lab Board](./src/resources/images/LabBoard.png) |
+| 로그인 | ![Login](./src/resources/images/login.png) |
+| 회원가입 | ![Signup](./src/resources/images/Auth.png) |
+| 쉐이커 애니메이션 | ![Shaker Animation](./src/resources/images/shakerAnimation.png) |
+| 404 에러 페이지 | ![404 Page](./src/resources/images/404Image.png) |
 
 ## 💡 학습 포인트 (Learning Points)
 
