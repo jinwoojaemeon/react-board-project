@@ -35,7 +35,7 @@ const LabBoard = () => {
       ) : (
         <RecipesGrid>
           {customCocktails.map((cocktail) => {
-            const isLiked = isLikedByUser(cocktail.id, user?.id)
+            const isLiked = isLikedByUser(cocktail.id, user && user.id)
             const likeCount = getLikeCount(cocktail.id)
             
             return (
@@ -56,7 +56,7 @@ const LabBoard = () => {
                       {likeCount > 0 && <LikeCount>{likeCount}</LikeCount>}
                       <LikeButton
                         className={isLiked ? 'liked' : ''}
-                        onClick={() => toggleLike(cocktail.id, user?.id)}
+                        onClick={() => toggleLike(cocktail.id, user && user.id)}
                         aria-label={isLiked ? '좋아요 취소' : '좋아요'}
                       >
                         <svg

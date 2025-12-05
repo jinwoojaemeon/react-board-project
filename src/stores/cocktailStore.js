@@ -57,7 +57,7 @@ export const useCocktailStore = create(
       isLikedByUser: (id, userId) => {
         if (!userId) return false
         const state = get()
-        return state.likedCocktails[userId]?.includes(id) || false
+        return (state.likedCocktails[userId] && state.likedCocktails[userId].includes(id)) || false
       },
       
       toggleLike: (id, userId) => {
