@@ -131,6 +131,23 @@ export const LoginPrompt = styled.div`
     }
 `
 
+export const EditButton = styled.button`
+    background: rgba(59, 130, 246, 0.1);
+    color: #3B82F6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(59, 130, 246, 0.2);
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+`
+
 export const DeleteButton = styled.button`
     background: rgba(111, 78, 55, 0.1);
     color: #6F4E37;

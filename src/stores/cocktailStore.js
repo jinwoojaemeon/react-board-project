@@ -21,6 +21,19 @@ export const useCocktailStore = create(
         }))
       },
       
+      updateCocktail: (id, updatedCocktail) => {
+        set((state) => {
+          const idString = String(id)
+          return {
+            customCocktails: state.customCocktails.map(cocktail => 
+              String(cocktail.id) === idString 
+                ? { ...cocktail, ...updatedCocktail, updatedAt: Date.now() }
+                : cocktail
+            )
+          }
+        })
+      },
+      
       deleteCocktail: (id) => {
         set((state) => {
           const newLikeHistory = { ...state.likeHistory }

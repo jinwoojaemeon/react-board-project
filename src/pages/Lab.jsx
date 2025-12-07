@@ -16,6 +16,7 @@ import {
   RecipeHeader,
   RecipeName,
   DeleteButton,
+  EditButton,
   RecipeDescription,
   RecipeIngredients,
   IngredientsList,
@@ -33,6 +34,7 @@ const Lab = () => {
   const deleteCocktail = useCocktailStore((state) => state.deleteCocktail)
   const { user } = useAuthStore()
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingCocktail, setEditingCocktail] = useState(null)
 
   // 현재 로그인한 유저의 칵테일만 필터링
   const userCocktails = useMemo(() => {
@@ -44,7 +46,18 @@ const Lab = () => {
     if (!user) {
       return // 로그인 안내 메시지가 표시됨
     }
+    setEditingCocktail(null)
     setIsFormOpen(true)
+  }
+
+  const handleEditClick = (cocktail) => {
+    setEditingCocktail(cocktail)
+    setIsFormOpen(true)
+  }
+
+  const handleFormClose = () => {
+    setIsFormOpen(false)
+    setEditingCocktail(null)
   }
 
   return (
@@ -79,9 +92,14 @@ const Lab = () => {
               <RecipeContent>
                 <RecipeHeader>
                   <RecipeName>{cocktail.name}</RecipeName>
-                  <DeleteButton onClick={() => deleteCocktail(cocktail.id)}>
-                    삭제
-                  </DeleteButton>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <EditButton onClick={() => handleEditClick(cocktail)}>
+                      수정
+                    </EditButton>
+                    <DeleteButton onClick={() => deleteCocktail(cocktail.id)}>
+                      삭제
+                    </DeleteButton>
+                  </div>
                 </RecipeHeader>
                 <RecipeDescription>{cocktail.description}</RecipeDescription>
                 <RecipeIngredients>
@@ -96,7 +114,11 @@ const Lab = () => {
           ))}
         </CocktailListContainer>
       )}
-      <LabForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
+      <LabForm 
+        isOpen={isFormOpen} 
+        onClose={handleFormClose}
+        editingCocktail={editingCocktail}
+      />
     </Container>
   )
 }

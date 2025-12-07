@@ -45,8 +45,8 @@ import {
 } from './LabForm.styled'
 import shakerIcon from '../resources/icons/shaker.png'
 
-const LabForm = ({ isOpen, onClose }) => {
-  const { addCocktail } = useCocktailStore()
+const LabForm = ({ isOpen, onClose, editingCocktail = null }) => {
+  const { addCocktail, updateCocktail } = useCocktailStore()
   const { user } = useAuthStore()
   const [formData, setFormData] = useState({
     name: '',
@@ -70,6 +70,81 @@ const LabForm = ({ isOpen, onClose }) => {
   const [pendingCocktail, setPendingCocktail] = useState(null)
   const [newlyAddedIngredientId, setNewlyAddedIngredientId] = useState(null)
   const previousIngredientsRef = useRef([])
+
+  // ingredients 문자열 배열을 파싱하여 객체 배열로 변환
+  const parseIngredients = (ingredientsArray) => {
+    if (!ingredientsArray || !Array.isArray(ingredientsArray)) return []
+    
+    const glassTypes = [
+      '콜린스 글래스', '마가리타 글래스', '록스 글래스', '올드 패션드 글래스',
+      '마티니 글래스', '하이볼 글래스', '샷 글래스', '와인 글래스', '샴페인 글래스'
+    ]
+    
+    const parsed = []
+    let glass = ''
+    
+    ingredientsArray.forEach((ing, index) => {
+      // 잔 종류인지 확인
+      const isGlass = glassTypes.some(glassType => ing.includes(glassType))
+      
+      if (isGlass) {
+        glass = ing
+        return
+      }
+      
+      // 재료 파싱: "화이트 럼 2oz" 형식
+      const match = ing.match(/^(.+?)\s+(\d+(?:\.\d+)?)(.+)$/)
+      if (match) {
+        const [, name, amount, unit] = match
+        parsed.push({
+          id: Date.now() + index,
+          name: name.trim(),
+          amount: amount.trim(),
+          unit: unit.trim()
+        })
+      } else {
+        // 양과 단위가 없는 경우 (예: "민트")
+        parsed.push({
+          id: Date.now() + index,
+          name: ing.trim(),
+          amount: '',
+          unit: 'oz'
+        })
+      }
+    })
+    
+    return { parsed, glass }
+  }
+
+  // editingCocktail이 변경될 때 폼 데이터 채우기
+  useEffect(() => {
+    if (editingCocktail && isOpen) {
+      const { parsed, glass } = parseIngredients(editingCocktail.ingredients)
+      
+      setFormData({
+        name: editingCocktail.name || '',
+        description: editingCocktail.description || '',
+        glass: glass || '',
+        instructions: editingCocktail.instructions || '',
+        image: editingCocktail.image || null
+      })
+      setImagePreview(editingCocktail.image || null)
+      setIngredients(parsed)
+    } else if (!editingCocktail && isOpen) {
+      // 새로 생성하는 경우 폼 초기화
+      setFormData({
+        name: '',
+        description: '',
+        glass: '',
+        instructions: '',
+        image: null
+      })
+      setImagePreview(null)
+      setIngredients([])
+      setNewIngredient({ name: '', amount: '', unit: 'oz' })
+      setIsCustomUnit(false)
+    }
+  }, [editingCocktail, isOpen])
 
   const commonIngredients = [
     '화이트 럼', '다크 럼', '진', '보드카', '위스키', '버번 위스키', '스카치 위스키',
@@ -272,7 +347,26 @@ const LabForm = ({ isOpen, onClose }) => {
         image: formData.image
       }
 
-      // 애니메이션 시작
+      // 수정 모드인 경우
+      if (editingCocktail) {
+        updateCocktail(editingCocktail.id, cocktailData)
+        // 폼 초기화
+        setFormData({
+          name: '',
+          description: '',
+          glass: '',
+          instructions: '',
+          image: null
+        })
+        setImagePreview(null)
+        setIngredients([])
+        setNewIngredient({ name: '', amount: '', unit: 'oz' })
+        setIsCustomUnit(false)
+        onClose()
+        return
+      }
+
+      // 애니메이션 시작 (생성 모드)
       setPendingCocktail(cocktailData)
       setIsAnimating(true)
       setAnimationStage('shake-first')
@@ -382,10 +476,10 @@ const LabForm = ({ isOpen, onClose }) => {
           />
         </ShakerAnimationContainer>
       )}
-      <ModalOverlay onClick={isAnimating ? undefined : onClose}>
+        <ModalOverlay onClick={isAnimating ? undefined : onClose}>
         <ModalContent onClick={(e) => e.stopPropagation()}>
           <ModalFormSection>
-            <ModalTitle>칵테일 제작</ModalTitle>
+            <ModalTitle>{editingCocktail ? '칵테일 수정' : '칵테일 제작'}</ModalTitle>
             <Form onSubmit={handleSubmit}>
             <Input
               type="text"
@@ -499,7 +593,11 @@ const LabForm = ({ isOpen, onClose }) => {
           />
             <ButtonGroup>
               <LoginButtonModal type="submit" disabled={isAnimating}>
-                {isAnimating ? '제작 중...' : '제작'}
+                {editingCocktail 
+                  ? '수정' 
+                  : isAnimating 
+                    ? '제작 중...' 
+                    : '제작'}
               </LoginButtonModal>
               <CancelButton type="button" onClick={onClose} disabled={isAnimating}>
                 취소
