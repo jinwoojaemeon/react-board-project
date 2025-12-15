@@ -35,7 +35,7 @@ const Login = () => {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (!formData.username.trim()) {
@@ -49,7 +49,7 @@ const Login = () => {
     }
 
     // 로그인 처리
-    const result = login(formData.username, formData.password)
+    const result = await login(formData.username, formData.password)
     
     if (result.success) {
       navigate(ROUTES.HOME)

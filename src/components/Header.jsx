@@ -24,7 +24,7 @@ const Header = () => {
             <UserSection>
               {user ? (
                 <UserInfo>
-                  <span>안녕하세요, {user.username}님</span>
+                  <span>안녕하세요, {user.memberId || user.nickname}님</span>
                   <LogoutButton onClick={logout}>로그아웃</LogoutButton>
                 </UserInfo>
               ) : (

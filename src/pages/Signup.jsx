@@ -48,7 +48,7 @@ const Signup = () => {
     }
 
     setIsCheckingUsername(true)
-    const exists = checkUsernameExists(formData.username)
+    const exists = await checkUsernameExists(formData.username)
     
     if (exists) {
       setErrors(prev => ({
@@ -74,8 +74,6 @@ const Signup = () => {
       newErrors.username = '아이디를 입력해주세요.'
     } else if (formData.username.length < 3) {
       newErrors.username = '아이디는 3자 이상이어야 합니다.'
-    } else if (checkUsernameExists(formData.username)) {
-      newErrors.username = '이미 사용 중인 아이디입니다.'
     }
 
     if (!formData.password.trim()) {
@@ -98,11 +96,11 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (validateForm()) {
-      const result = signup(formData)
+      const result = await signup(formData)
       
       if (result.success) {
         alert('회원가입이 완료되었습니다!')

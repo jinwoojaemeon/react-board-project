@@ -1,70 +1,108 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+const API_BASE_URL = '/api'
+
 export const useAuthStore = create(
   persist(
     (set, get) => ({
-      user: null,
-      users: [], // 회원가입한 유저 목록
+      user: null, // { memberNo: Long, memberId: String, nickname: String }
 
       // 아이디 중복 체크
-      checkUsernameExists: (username) => {
-        const users = get().users
-        return users.some(user => user.username === username)
+      checkUsernameExists: async (memberId) => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/members/check-memberId?memberId=${encodeURIComponent(memberId)}`)
+          const data = await response.json()
+          
+          if (data.success) {
+            return !data.data.available // available이 false면 존재함
+          }
+          return false
+        } catch (error) {
+          console.error('아이디 중복 체크 실패:', error)
+          return false
+        }
       },
 
       // 회원가입
-      signup: (userData) => {
-        const { username, password, nickname, email } = userData
+      signup: async (userData) => {
+        const { username: memberId, password: userPwd, nickname, email } = userData
         
-        // 아이디 중복 체크
-        if (get().checkUsernameExists(username)) {
-          return { success: false, error: '이미 사용 중인 아이디입니다.' }
-        }
+        try {
+          const response = await fetch(`${API_BASE_URL}/members`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              memberId,
+              userPwd,
+              nickname,
+              email
+            })
+          })
 
-        const newUser = {
-          id: Date.now(),
-          username,
-          password, // 실제로는 해시화해야 하지만 간단하게 저장
-          nickname,
-          email,
-          createdAt: Date.now()
-        }
+          const data = await response.json()
 
-        set((state) => ({
-          users: [...state.users, newUser],
-          user: { id: newUser.id, username: newUser.username, nickname: newUser.nickname }
-        }))
-        
-        return { success: true }
+          if (response.ok && data.success) {
+            const memberData = data.data
+            set({
+              user: {
+                memberNo: memberData.memberNo,
+                memberId: memberData.memberId,
+                nickname: memberData.nickname
+              }
+            })
+            return { success: true }
+          } else {
+            return { success: false, error: data.message || '회원가입에 실패했습니다.' }
+          }
+        } catch (error) {
+          console.error('회원가입 실패:', error)
+          return { success: false, error: '회원가입 중 오류가 발생했습니다.' }
+        }
       },
 
       // 로그인
-      login: (username, password) => {
-        const users = get().users
-        const user = users.find(u => u.username === username && u.password === password)
-        
-        if (!user) {
-          return { success: false, error: '아이디 또는 비밀번호가 올바르지 않습니다.' }
-        }
+      login: async (memberId, userPwd) => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/members/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              memberId,
+              userPwd
+            })
+          })
 
-        set({ 
-          user: { 
-            id: user.id, 
-            username: user.username, 
-            nickname: user.nickname 
+          const data = await response.json()
+
+          if (response.ok && data.success) {
+            const memberData = data.data
+            set({
+              user: {
+                memberNo: memberData.memberNo,
+                memberId: memberData.memberId,
+                nickname: memberData.nickname
+              }
+            })
+            return { success: true }
+          } else {
+            return { success: false, error: data.message || '아이디 또는 비밀번호가 올바르지 않습니다.' }
           }
-        })
-        
-        return { success: true }
+        } catch (error) {
+          console.error('로그인 실패:', error)
+          return { success: false, error: '로그인 중 오류가 발생했습니다.' }
+        }
       },
 
       // 로그아웃
       logout: () => set({ user: null }),
     }),
     {
-      name: 'cocktail-lab-auth', // persist가 자동으로 이 키로 로컬스토리지에 저장
+      name: 'cocktail-lab-auth',
     }
   )
 )
-

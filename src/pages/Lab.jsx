@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../routes/routes'
 import {
@@ -30,17 +30,32 @@ import shakerIcon from '../resources/icons/shaker.png'
 
 const Lab = () => {
   const navigate = useNavigate()
-  const customCocktails = useCocktailStore((state) => state.customCocktails)
-  const deleteCocktail = useCocktailStore((state) => state.deleteCocktail)
+  const { customCocktails, deleteCocktail, fetchCocktails } = useCocktailStore()
   const { user } = useAuthStore()
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingCocktail, setEditingCocktail] = useState(null)
 
+  // 서버에서 칵테일 목록 가져오기
+  useEffect(() => {
+    fetchCocktails()
+  }, [fetchCocktails])
+
   // 현재 로그인한 유저의 칵테일만 필터링
   const userCocktails = useMemo(() => {
     if (!user) return []
-    return customCocktails.filter(cocktail => cocktail.userId === user.id)
+    return customCocktails.filter(cocktail => cocktail.userId === user.memberNo)
   }, [user, customCocktails])
+
+  const handleDelete = async (id) => {
+    if (window.confirm('정말 삭제하시겠습니까?')) {
+      try {
+        await deleteCocktail(id)
+        await fetchCocktails() // 목록 새로고침
+      } catch (error) {
+        alert('삭제에 실패했습니다.')
+      }
+    }
+  }
 
   const handleCreateClick = () => {
     if (!user) {
@@ -96,7 +111,7 @@ const Lab = () => {
                     <EditButton onClick={() => handleEditClick(cocktail)}>
                       수정
                     </EditButton>
-                    <DeleteButton onClick={() => deleteCocktail(cocktail.id)}>
+                    <DeleteButton onClick={() => handleDelete(cocktail.id)}>
                       삭제
                     </DeleteButton>
                   </div>

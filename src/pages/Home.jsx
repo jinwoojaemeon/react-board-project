@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import {
   Container,
   PageTitle,
@@ -26,27 +26,13 @@ import { useCocktailStore } from '../stores/cocktailStore'
 import { useAuthStore } from '../stores/authStore'
 
 const Home = () => {
-  const { customCocktails, likeHistory, toggleLike, isLikedByUser } = useCocktailStore()
+  const { customCocktails, toggleLike, isLikedByUser, getLikeCount, fetchCocktails } = useCocktailStore()
   const { user } = useAuthStore()
 
-  // 좋아요 수 계산
-  const getLikeCount = (id) => {
-    return likeHistory[id] ? likeHistory[id].length : 0
-  }
-
-  // 날짜 필터링 함수들
-  const isWithinWeek = (timestamp) => {
-    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
-    return timestamp >= weekAgo
-  }
-
-  const isToday = (timestamp) => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const timestampDate = new Date(timestamp)
-    timestampDate.setHours(0, 0, 0, 0)
-    return timestampDate.getTime() === today.getTime()
-  }
+  // 서버에서 칵테일 목록 가져오기
+  useEffect(() => {
+    fetchCocktails()
+  }, [fetchCocktails])
 
   // Total: 좋아요가 있는 모든 칵테일을 좋아요 수 순으로 정렬해서 상위 3개만
   const totalPopular = useMemo(() => {
@@ -58,40 +44,43 @@ const Home = () => {
       }))
       .sort((a, b) => b.likeCount - a.likeCount)
       .slice(0, 3)
-  }, [customCocktails, likeHistory])
+  }, [customCocktails, getLikeCount])
 
-  // 주간: 최근 7일 내에 좋아요를 받은 칵테일 중 상위 3개만
+  // 주간: 최근 7일 내에 좋아요를 받은 칵테일 중 상위 3개만 (서버에서 날짜 정보를 받아야 함)
   const weeklyPopular = useMemo(() => {
     return customCocktails
-      .filter(cocktail => {
-        if (!likeHistory[cocktail.id]) return false
-        return likeHistory[cocktail.id].some(timestamp => isWithinWeek(timestamp))
-      })
+      .filter(cocktail => getLikeCount(cocktail.id) > 0)
       .map(cocktail => ({
         ...cocktail,
-        likeCount: likeHistory[cocktail.id].filter(timestamp => isWithinWeek(timestamp)).length
+        likeCount: getLikeCount(cocktail.id)
       }))
       .sort((a, b) => b.likeCount - a.likeCount)
       .slice(0, 3)
-  }, [customCocktails, likeHistory])
+  }, [customCocktails, getLikeCount])
 
-  // 일별: 오늘 좋아요를 받은 칵테일 중 상위 3개만
+  // 일별: 오늘 좋아요를 받은 칵테일 중 상위 3개만 (서버에서 날짜 정보를 받아야 함)
   const dailyPopular = useMemo(() => {
     return customCocktails
-      .filter(cocktail => {
-        if (!likeHistory[cocktail.id]) return false
-        return likeHistory[cocktail.id].some(timestamp => isToday(timestamp))
-      })
+      .filter(cocktail => getLikeCount(cocktail.id) > 0)
       .map(cocktail => ({
         ...cocktail,
-        likeCount: likeHistory[cocktail.id].filter(timestamp => isToday(timestamp)).length
+        likeCount: getLikeCount(cocktail.id)
       }))
       .sort((a, b) => b.likeCount - a.likeCount)
       .slice(0, 3)
-  }, [customCocktails, likeHistory])
+  }, [customCocktails, getLikeCount])
+
+  const handleToggleLike = async (id) => {
+    try {
+      await toggleLike(id, user?.memberNo)
+      await fetchCocktails() // 목록 새로고침
+    } catch (error) {
+      alert('좋아요 처리에 실패했습니다.')
+    }
+  }
 
   const renderCocktailCard = (cocktail) => {
-    const isLiked = isLikedByUser(cocktail.id, user && user.id)
+    const isLiked = isLikedByUser(cocktail.id, user?.memberNo)
     const likeCount = getLikeCount(cocktail.id)
 
     return (
@@ -112,7 +101,7 @@ const Home = () => {
               {likeCount > 0 && <LikeCount>{likeCount}</LikeCount>}
               <LikeButton
                 className={isLiked ? 'liked' : ''}
-                onClick={() => toggleLike(cocktail.id, user && user.id)}
+                onClick={() => handleToggleLike(cocktail.id)}
                 aria-label={isLiked ? '좋아요 취소' : '좋아요'}
               >
                 <svg

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   Container,
   PageTitle,
@@ -24,8 +24,22 @@ import { useCocktailStore } from '../stores/cocktailStore'
 import { useAuthStore } from '../stores/authStore'
 
 const LabBoard = () => {
-  const { customCocktails, likeHistory, toggleLike, isLikedByUser, getLikeCount } = useCocktailStore()
+  const { customCocktails, toggleLike, isLikedByUser, getLikeCount, fetchCocktails } = useCocktailStore()
   const { user } = useAuthStore()
+
+  // 서버에서 칵테일 목록 가져오기
+  useEffect(() => {
+    fetchCocktails()
+  }, [fetchCocktails])
+
+  const handleToggleLike = async (id) => {
+    try {
+      await toggleLike(id, user?.memberNo)
+      await fetchCocktails() // 목록 새로고침
+    } catch (error) {
+      alert('좋아요 처리에 실패했습니다.')
+    }
+  }
 
   return (
     <Container>
@@ -35,7 +49,7 @@ const LabBoard = () => {
       ) : (
         <RecipesGrid>
           {customCocktails.map((cocktail) => {
-            const isLiked = isLikedByUser(cocktail.id, user && user.id)
+            const isLiked = isLikedByUser(cocktail.id, user?.memberNo)
             const likeCount = getLikeCount(cocktail.id)
             
             return (
@@ -56,7 +70,7 @@ const LabBoard = () => {
                       {likeCount > 0 && <LikeCount>{likeCount}</LikeCount>}
                       <LikeButton
                         className={isLiked ? 'liked' : ''}
-                        onClick={() => toggleLike(cocktail.id, user && user.id)}
+                        onClick={() => handleToggleLike(cocktail.id)}
                         aria-label={isLiked ? '좋아요 취소' : '좋아요'}
                       >
                         <svg

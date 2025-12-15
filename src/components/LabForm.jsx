@@ -46,7 +46,7 @@ import {
 import shakerIcon from '../resources/icons/shaker.png'
 
 const LabForm = ({ isOpen, onClose, editingCocktail = null }) => {
-  const { addCocktail, updateCocktail } = useCocktailStore()
+  const { addCocktail, updateCocktail, fetchCocktails } = useCocktailStore()
   const { user } = useAuthStore()
   const [formData, setFormData] = useState({
     name: '',
@@ -349,20 +349,25 @@ const LabForm = ({ isOpen, onClose, editingCocktail = null }) => {
 
       // 수정 모드인 경우
       if (editingCocktail) {
-        updateCocktail(editingCocktail.id, cocktailData)
-        // 폼 초기화
-        setFormData({
-          name: '',
-          description: '',
-          glass: '',
-          instructions: '',
-          image: null
+        updateCocktail(editingCocktail.id, cocktailData).then(() => {
+          // 칵테일 수정 후 목록 새로고침
+          fetchCocktails()
+          // 폼 초기화
+          setFormData({
+            name: '',
+            description: '',
+            glass: '',
+            instructions: '',
+            image: null
+          })
+          setImagePreview(null)
+          setIngredients([])
+          setNewIngredient({ name: '', amount: '', unit: 'oz' })
+          setIsCustomUnit(false)
+          onClose()
+        }).catch((error) => {
+          alert('칵테일 수정에 실패했습니다.')
         })
-        setImagePreview(null)
-        setIngredients([])
-        setNewIngredient({ name: '', amount: '', unit: 'oz' })
-        setIsCustomUnit(false)
-        onClose()
         return
       }
 
@@ -397,7 +402,12 @@ const LabForm = ({ isOpen, onClose, editingCocktail = null }) => {
       const timer = setTimeout(() => {
         // 애니메이션 완료 후 칵테일 추가
         if (pendingCocktail && user) {
-          addCocktail(pendingCocktail, user.id)
+          addCocktail(pendingCocktail, user.memberNo).then(() => {
+            // 칵테일 추가 후 목록 새로고침
+            fetchCocktails()
+          }).catch((error) => {
+            alert('칵테일 생성에 실패했습니다.')
+          })
         }
         
         // 폼 초기화
